@@ -1,71 +1,52 @@
-'''
-player = Player(attack=10, health=100, defence=5)
-
-player.equip_weapon()
-player.equip_armor()
-'''
-
-
-# To add, healing
+from items import Items
 
 class Player():
-	def __init__(self, attack, health, defence):
-		self.attack = attack
-		self.health = health
-		self.defence = defence
-		self.hasWeapon = False
-		self.hasArmor = False
+	def __init__(self):
+		# self.name = name # Add name argument when ready
+		self.health = 100
+		self.baseAttack = 10
+		self.baseDefense = 5
+		self.items = Items()
 
 
-# Runs while hasWeapon == False
-	def equipWeapon(self):
-		if not self.hasWeapon:
-			self.attack *= 1.5
-			self.hasWeapon = True      # Stops statement from running
+# Equips weapons through item class
+	def equipWeapon(self, weaponName):
+		self.items.equipWeapon(weaponName)
 
-# Runs while hasArmour == False
-	def equipArmor(self):
-		if not self.hasArmor:
-			self.defence *= 1.1
-			self.hasArmor = True  # Stops statement from running
+# Equips armor
+	def equipArmor(self, armorName):
+		self.items.equipArmor(armorName)
+
+	def unequipWeapon(self):
+		self.items.unequipWeapon()
+		
+	def unequipArmor(self):
+		self.items.unequipArmor()
 
 
-# Charcter is attacking/dealing damage
-	def isAttacking(self):
-		return self.attack
+	def getAttack(self):
+		# Calculate total attack, factoring in any equipped weapon
+		return self.items.getAttackBonus(self.baseAttack)
 	
-# Charcter is defending/taking damage
-	def isDefending(self, incoming_damage):
-		#Returns health ensuring it does not pass zero
-		self.health -= max(0, incoming_damage - self.defence)
+	def applyIncomingDamage(self, incomingDamage):
+		# Calculate effective defense with equipped armor, then apply damage
+		totalDefense  = self.items.getDefenseBonus(self.baseDefense)
+		damageTaken = max(0, incomingDamage - totalDefense)			#Returns damage taken ensuring health does not pass zero
+		self.health -= damageTaken
 		return self.health
 
+
 	def isAlive(self):
+		# Check if the player is still alive
 		if self.health > 0:
 			return True
 		else:
 			print (f'You died, better luck next time....')
 			return False
-
-
+			
 # Overload Player function
 	def __str__(self):
-		stats_report = f'Player stats: Health {self.health}\nAttack {self.attack}\nDefence {self.defence}'
-		return stats_report
-
-
-
-
-
-
-
-
-
-# Example usage
-player = Player(10, 100, 5)
-print(player)  # Uses __str__ to display player stats
-player.equipWeapon()
-player.equipArmor()
-print("Player attack after equipping weapon:", player.isAttacking())
-print("Player health after taking 20 damage:", player.isDefending(20))
-print("Is player alive?", player.isAlive())
+		return (f"Player Stats:\n"
+				f"Health: {self.health}\n"
+				f"Attack: {self.getAttack()}\n"
+				f"Defense: {self.items.getDefenseBonus(self.baseDefense)}")
